@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id // Discord user ID
+  inGameName    String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Current stats
+  power                Int?
+  leadership           Int?
+  minionSimPower       Int?
+  simulationFloor      Int?
+  minionTier           String? // "T1" through "T9"
+  
+  // War (weekly reset: Saturday 9 AM ET to Friday 7:30 AM ET)
+  speciesWarRole       String? // "vanguard", "prospector", "laborer"
+  silverBadgesAccum    Int     @default(0)
+  silverBadgesUsed     Int     @default(0)
+  goldBadgesAccum       Int     @default(0)
+  goldBadgesUsed       Int     @default(0)
+  drillsInventoried    Int     @default(0)
+  drillsUsed           Int     @default(0)
+  lastWarWeekReset     DateTime? // Track when resources were last reset for the week
+  
+  // Relations
+  statsHistory         StatsHistory[]
+  mineEntries          MineEntry[]
+}
+
+model StatsHistory {
+  id            String   @id @default(cuid())
+  userId        String
+  timestamp     DateTime @default(now())
+  
+  power                Int?
+  leadership           Int?
+  minionSimPower       Int?
+  simulationFloor      Int?
+  minionTier           String?
+  
+  user                 User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, timestamp])
+}
+
+model MineEntry {
+  id                    String   @id @default(cuid())
+  userId                String
+  tier                  Int      // Mine tier
+  gatheringPoints       Int      // Number of gathering points
+  durationPerPoint      Int      // Duration in seconds per gathering point
+  startTime             DateTime @default(now())
+  expirationTime        DateTime // Calculated: startTime + (gatheringPoints * durationPerPoint)
+  isActive              Boolean  @default(true) // Marked false when expired/closed for the week
+  
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isActive])
+  @@index([expirationTime]) // For finding expired mines
+}
+
