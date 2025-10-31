@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { handleRegisterModal } from "./register.js";
 import { prisma } from "../../database/client.js";
 import type { ModalSubmitInteraction } from "discord.js";
+import { GuildMember } from "discord.js";
 
 // Mock Prisma
 vi.mock("../../database/client.js", () => ({
@@ -13,11 +14,32 @@ vi.mock("../../database/client.js", () => ({
   },
 }));
 
+// Mock isMemberOrAdmin
+vi.mock("../../utils/isMemberOrAdmin.js", () => ({
+  isMemberOrAdmin: vi.fn(),
+}));
+
+import { isMemberOrAdmin } from "../../utils/isMemberOrAdmin.js";
+
 describe("handleRegisterModal", () => {
   let mockInteraction: Partial<ModalSubmitInteraction>;
+  let mockMember: GuildMember;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    
+    // Create a proper mock that will pass instanceof GuildMember
+    mockMember = Object.create(GuildMember.prototype) as GuildMember;
+    Object.defineProperty(mockMember, "roles", {
+      value: {
+        cache: {
+          has: vi.fn(),
+        },
+      },
+      writable: true,
+      configurable: true,
+    });
+    
     mockInteraction = {
       customId: "register_modal",
       fields: {
@@ -27,7 +49,11 @@ describe("handleRegisterModal", () => {
       user: {
         id: "123456789",
       },
+      member: mockMember,
     };
+    
+    // Default to allowing access
+    (isMemberOrAdmin as any).mockReturnValue(true);
   });
 
   it("should reject empty name", async () => {
@@ -125,6 +151,34 @@ describe("handleRegisterModal", () => {
       content: "Something went wrong. Try again later.",
       ephemeral: true,
     });
+  });
+
+  it("should reject users without member or admin role", async () => {
+    (isMemberOrAdmin as any).mockReturnValue(false);
+    const inGameName = "TestSnail";
+    (mockInteraction.fields!.getTextInputValue as any).mockReturnValue(inGameName);
+
+    await handleRegisterModal(mockInteraction as ModalSubmitInteraction);
+
+    expect(mockInteraction.reply).toHaveBeenCalledWith({
+      content: "You don't have permission to use this command. You need the member or admin role.",
+      ephemeral: true,
+    });
+    expect(prisma.user.upsert).not.toHaveBeenCalled();
+  });
+
+  it("should reject when used outside a server", async () => {
+    mockInteraction.member = null;
+    const inGameName = "TestSnail";
+    (mockInteraction.fields!.getTextInputValue as any).mockReturnValue(inGameName);
+
+    await handleRegisterModal(mockInteraction as ModalSubmitInteraction);
+
+    expect(mockInteraction.reply).toHaveBeenCalledWith({
+      content: "This command can only be used in a server.",
+      ephemeral: true,
+    });
+    expect(prisma.user.upsert).not.toHaveBeenCalled();
   });
 });
 

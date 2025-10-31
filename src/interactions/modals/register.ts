@@ -1,9 +1,26 @@
-import { ModalSubmitInteraction } from "discord.js";
+import { ModalSubmitInteraction, GuildMember } from "discord.js";
 import { prisma } from "../../database/client.js";
 import { EmbedBuilder } from "discord.js";
+import { isMemberOrAdmin } from "../../utils/isMemberOrAdmin.js";
 
 export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
   if (interaction.customId !== "register_modal") {
+    return;
+  }
+
+  if (!interaction.member || !(interaction.member instanceof GuildMember)) {
+    await interaction.reply({
+      content: "This command can only be used in a server.",
+      ephemeral: true,
+    });
+    return;
+  }
+
+  if (!isMemberOrAdmin(interaction.member)) {
+    await interaction.reply({
+      content: "You don't have permission to use this command. You need the member or admin role.",
+      ephemeral: true,
+    });
     return;
   }
 
