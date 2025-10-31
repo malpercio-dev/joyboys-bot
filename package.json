@@ -14,12 +14,17 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"
   },
-  "keywords": ["discord", "bot", "super-snail"],
+  "keywords": [
+    "discord",
+    "bot",
+    "super-snail"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^14.14.1",
     "@prisma/client": "^5.9.1",
+    "discord.js": "^14.14.1",
+    "dotenv": "^17.2.3",
     "node-cron": "^3.0.3"
   },
   "devDependencies": {
@@ -31,4 +36,3 @@
     "vitest": "^1.2.1"
   }
 }
-

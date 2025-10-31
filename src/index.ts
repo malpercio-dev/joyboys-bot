@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { Bot } from "./bot.js";
 
 const bot = new Bot();
@@ -16,4 +17,5 @@ process.on("SIGTERM", async () => {
   await bot.stop();
   process.exit(0);
 });
+
 

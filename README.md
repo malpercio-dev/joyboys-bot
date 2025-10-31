@@ -16,6 +16,15 @@ Discord bot for Super Snail club management. Manages user registration, snail st
 - Discord Bot Token ([Discord Developer Portal](https://discord.com/developers/applications))
 - Discord Server with admin role configured
 
+## Deployment
+
+For detailed deployment instructions, see [docs/plans/deployment-plan.md](docs/plans/deployment-plan.md).
+
+Quick start:
+1. Set up `.env` with bot token and admin role ID
+2. Run `npm run db:migrate` to create database
+3. Run `npm run build && npm start` to start bot
+
 ## Setup
 
 ### 1. Clone and Install Dependencies

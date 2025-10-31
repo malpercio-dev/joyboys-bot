@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { handleRegisterModal } from "./register.js";
-import { prisma } from "../database/client.js";
+import { prisma } from "../../database/client.js";
 import type { ModalSubmitInteraction } from "discord.js";
 
 // Mock Prisma

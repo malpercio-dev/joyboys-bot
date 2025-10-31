@@ -1,5 +1,5 @@
 import { ModalSubmitInteraction } from "discord.js";
-import { prisma } from "../database/client.js";
+import { prisma } from "../../database/client.js";
 import { EmbedBuilder } from "discord.js";
 
 export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
@@ -32,7 +32,7 @@ export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
       where: { id: interaction.user.id },
     });
 
-    const user = await prisma.user.upsert({
+    await prisma.user.upsert({
       where: { id: interaction.user.id },
       update: { inGameName },
       create: {
