@@ -4,7 +4,7 @@ import { prisma } from "../../database/client.js";
 import type { ModalSubmitInteraction } from "discord.js";
 
 // Mock Prisma
-vi.mock("../database/client.js", () => ({
+vi.mock("../../database/client.js", () => ({
   prisma: {
     user: {
       findUnique: vi.fn(),
@@ -75,7 +75,9 @@ describe("handleRegisterModal", () => {
 
     expect(mockInteraction.reply).toHaveBeenCalled();
     const replyCall = (mockInteraction.reply as any).mock.calls[0][0];
-    const embedData = replyCall.embeds[0].data;
+    const embed = replyCall.embeds[0];
+    // EmbedBuilder instances have a .data property with the serialized data
+    const embedData = embed.data || embed.toJSON();
     expect(embedData.description).toContain("Welcome");
     expect(embedData.description).toContain(inGameName);
   });
@@ -105,7 +107,9 @@ describe("handleRegisterModal", () => {
 
     expect(mockInteraction.reply).toHaveBeenCalled();
     const replyCall = (mockInteraction.reply as any).mock.calls[0][0];
-    const embedData = replyCall.embeds[0].data;
+    const embed = replyCall.embeds[0];
+    // EmbedBuilder instances have a .data property with the serialized data
+    const embedData = embed.data || embed.toJSON();
     expect(embedData.description).toContain("Changed your mind");
     expect(embedData.description).toContain(inGameName);
   });
