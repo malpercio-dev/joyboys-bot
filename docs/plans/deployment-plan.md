@@ -140,7 +140,7 @@ CMD ["node", "dist/index.js"]
 ## Production Deployment
 
 ### Pre-Production Checklist
-- [ ] Staging tested and working
+- [x] Staging tested and working
 - [ ] Database backup strategy in place
 - [ ] Production `.env` configured with production values
 - [ ] Production admin role ID configured

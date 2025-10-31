@@ -16,7 +16,7 @@ export async function registerCommands(bot: Bot, commands: Command[]) {
   const commandsData = commands.map((command) => command.data.toJSON());
 
   try {
-    console.log("Registering slash commands...");
+    console.log("Registering slash commands...", commandsData);
 
     await rest.put(
       Routes.applicationCommands(bot.client.user!.id),
@@ -33,7 +33,12 @@ export async function loadCommands(): Promise<Command[]> {
   const commands: Command[] = [];
   const commandsPath = join(__dirname, "../commands");
   const commandFiles = readdirSync(commandsPath).filter((file) =>
-    file.endsWith(".ts")
+    (file.endsWith(".js") || file.endsWith(".ts")) &&
+    !file.endsWith(".d.ts") &&
+    !file.endsWith(".d.js") &&
+    !file.endsWith(".test.ts") &&
+    !file.endsWith(".test.js") &&
+    !file.endsWith(".js.map")
   );
 
   for (const file of commandFiles) {
