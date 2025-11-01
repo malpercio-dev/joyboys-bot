@@ -29,6 +29,21 @@ export interface Responses {
     commandExecution: ResponseSet;
     modalSubmission: ResponseSet;
   };
+  admin: {
+    listUsers: {
+      commandDescription: string;
+      title: string;
+      noUsers: ResponseSet;
+      permissionDenied: ResponseSet;
+    };
+    deleteUser: {
+      confirmButtonLabel: string;
+      success: ResponseSet;
+      error: ResponseSet;
+      notFound: ResponseSet;
+      permissionDenied: ResponseSet;
+    };
+  };
 }
 
 export const responses: Responses = {
@@ -117,6 +132,58 @@ export const responses: Responses = {
         "Error processing submission. What a shock.",
         "That submission didn't work. Try once more.",
       ],
+    },
+  },
+  admin: {
+    listUsers: {
+      commandDescription: "List all registered users (admin only)",
+      title: "Registered Users",
+      noUsers: {
+        responses: [
+          "No one's registered yet. Impressive.",
+          "Nobody here. The place is empty.",
+          "Zero registrations. Starting from scratch, are we?",
+        ],
+      },
+      permissionDenied: {
+        responses: [
+          "You don't have permission to use this command.",
+          "Nope. Admin only. You're not admin.",
+          "Access denied. Get yourself some admin privileges first.",
+        ],
+      },
+    },
+    deleteUser: {
+      confirmButtonLabel: "Delete",
+      success: {
+        responses: [
+          "User deleted. They're gone now.",
+          "Deleted. One less user to worry about.",
+          "User removed. Good riddance.",
+          "They're gone. Deleted successfully.",
+        ],
+      },
+      error: {
+        responses: [
+          "Failed to delete user. Something went wrong.",
+          "Couldn't delete that user. Try again.",
+          "Error deleting user. Oops.",
+        ],
+      },
+      notFound: {
+        responses: [
+          "User not found. Already deleted?",
+          "Couldn't find that user. Maybe they're already gone?",
+          "User doesn't exist. Check the ID.",
+        ],
+      },
+      permissionDenied: {
+        responses: [
+          "You don't have permission to do that.",
+          "Admin only. You're not admin.",
+          "Not happening. You need admin privileges.",
+        ],
+      },
     },
   },
 };
