@@ -2,6 +2,8 @@ import { ModalSubmitInteraction, GuildMember } from "discord.js";
 import { prisma } from "../../database/client.js";
 import { EmbedBuilder } from "discord.js";
 import { isMemberOrAdmin } from "../../utils/isMemberOrAdmin.js";
+import { responses } from "../../config/responses.js";
+import { getRandomResponse } from "../../utils/responses.js";
 
 export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
   if (interaction.customId !== "register_modal") {
@@ -10,7 +12,7 @@ export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
 
   if (!interaction.member || !(interaction.member instanceof GuildMember)) {
     await interaction.reply({
-      content: "This command can only be used in a server.",
+      content: getRandomResponse(responses.registration.serverOnlyError),
       ephemeral: true,
     });
     return;
@@ -18,7 +20,7 @@ export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
 
   if (!isMemberOrAdmin(interaction.member)) {
     await interaction.reply({
-      content: "You don't have permission to use this command. You need the member or admin role.",
+      content: getRandomResponse(responses.registration.permissionError),
       ephemeral: true,
     });
     return;
@@ -29,7 +31,7 @@ export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
   // Validation
   if (!inGameName || inGameName.length === 0) {
     await interaction.reply({
-      content: "Nice try, but that name doesn't work. Try again when you've got your act together.",
+      content: getRandomResponse(responses.registration.validation.emptyName),
       ephemeral: true,
     });
     return;
@@ -37,7 +39,7 @@ export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
 
   if (inGameName.length > 100) {
     await interaction.reply({
-      content: "That name is too long. Keep it under 100 characters, will you?",
+      content: getRandomResponse(responses.registration.validation.nameTooLong),
       ephemeral: true,
     });
     return;
@@ -59,11 +61,19 @@ export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle(existingUser ? "Name Updated" : "Welcome!")
+      .setTitle(
+        existingUser
+          ? responses.registration.success.reRegistration.title
+          : responses.registration.success.firstTime.title
+      )
       .setDescription(
         existingUser
-          ? `Changed your mind about your name, did you? Fine, you're now ${inGameName}. Don't make me update this again.`
-          : `Well, well, look who decided to join us. Welcome, ${inGameName}. Try not to mess this up.`
+          ? getRandomResponse(responses.registration.success.reRegistration.description, {
+              inGameName,
+            })
+          : getRandomResponse(responses.registration.success.firstTime.description, {
+              inGameName,
+            })
       )
       .setColor(existingUser ? 0xffa500 : 0x00ff00);
 
@@ -74,7 +84,7 @@ export async function handleRegisterModal(interaction: ModalSubmitInteraction) {
   } catch (error) {
     console.error("Error registering user:", error);
     await interaction.reply({
-      content: "Something went wrong. Try again later.",
+      content: getRandomResponse(responses.registration.genericError),
       ephemeral: true,
     });
   }

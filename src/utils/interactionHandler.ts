@@ -2,6 +2,8 @@ import { Events, Interaction } from "discord.js";
 import { Bot } from "../bot.js";
 import { Command } from "../types/command.js";
 import { handleRegisterModal } from "../interactions/modals/register.js";
+import { responses } from "../config/responses.js";
+import { getRandomResponse } from "../utils/responses.js";
 
 export function setupInteractionHandlers(bot: Bot, commands: Command[]) {
   bot.client.on(Events.InteractionCreate, async (interaction: Interaction) => {
@@ -20,7 +22,7 @@ export function setupInteractionHandlers(bot: Bot, commands: Command[]) {
       } catch (error) {
         console.error(`Error executing ${interaction.commandName}:`, error);
         const errorMessage = {
-          content: "There was an error while executing this command!",
+          content: getRandomResponse(responses.errors.commandExecution),
           ephemeral: true,
         };
 
@@ -38,7 +40,7 @@ export function setupInteractionHandlers(bot: Bot, commands: Command[]) {
       } catch (error) {
         console.error("Error handling modal submission:", error);
         const errorMessage = {
-          content: "There was an error processing your submission!",
+          content: getRandomResponse(responses.errors.modalSubmission),
           ephemeral: true,
         };
 

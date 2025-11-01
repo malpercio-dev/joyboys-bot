@@ -1,15 +1,17 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, GuildMember } from "discord.js";
 import { Command } from "../types/command.js";
 import { isMemberOrAdmin } from "../utils/isMemberOrAdmin.js";
+import { responses } from "../config/responses.js";
+import { getRandomResponse } from "../utils/responses.js";
 
 const data = new SlashCommandBuilder()
   .setName("register")
-  .setDescription("Register your snail with BigNickBot");
+  .setDescription(responses.registration.commandDescription);
 
 async function execute(interaction: ChatInputCommandInteraction) {
   if (!interaction.member || !(interaction.member instanceof GuildMember)) {
     await interaction.reply({
-      content: "This command can only be used in a server.",
+      content: getRandomResponse(responses.registration.serverOnlyError),
       ephemeral: true,
     });
     return;
@@ -17,7 +19,7 @@ async function execute(interaction: ChatInputCommandInteraction) {
 
   if (!isMemberOrAdmin(interaction.member)) {
     await interaction.reply({
-      content: "You don't have permission to use this command. You need the member or admin role.",
+      content: getRandomResponse(responses.registration.permissionError),
       ephemeral: true,
     });
     return;
@@ -25,13 +27,13 @@ async function execute(interaction: ChatInputCommandInteraction) {
 
   const modal = new ModalBuilder()
     .setCustomId("register_modal")
-    .setTitle("Register with BigNickBot");
+    .setTitle(responses.registration.modalTitle);
 
   const inGameNameInput = new TextInputBuilder()
     .setCustomId("in_game_name")
     .setLabel("In-Game Name")
     .setStyle(TextInputStyle.Short)
-    .setPlaceholder("Your in-game name")
+    .setPlaceholder(responses.registration.modalPlaceholder)
     .setRequired(true)
     .setMaxLength(100);
 

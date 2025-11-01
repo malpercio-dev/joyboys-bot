@@ -3,6 +3,7 @@ import { handleRegisterModal } from "./register.js";
 import { prisma } from "../../database/client.js";
 import type { ModalSubmitInteraction } from "discord.js";
 import { GuildMember } from "discord.js";
+import { responses } from "../../config/responses.js";
 
 // Mock Prisma
 vi.mock("../../database/client.js", () => ({
@@ -61,10 +62,9 @@ describe("handleRegisterModal", () => {
     
     await handleRegisterModal(mockInteraction as ModalSubmitInteraction);
 
-    expect(mockInteraction.reply).toHaveBeenCalledWith({
-      content: "Nice try, but that name doesn't work. Try again when you've got your act together.",
-      ephemeral: true,
-    });
+    const replyCall = (mockInteraction.reply as any).mock.calls[0][0];
+    expect(replyCall.ephemeral).toBe(true);
+    expect(responses.registration.validation.emptyName.responses).toContain(replyCall.content);
   });
 
   it("should reject name over 100 characters", async () => {
@@ -73,10 +73,9 @@ describe("handleRegisterModal", () => {
     
     await handleRegisterModal(mockInteraction as ModalSubmitInteraction);
 
-    expect(mockInteraction.reply).toHaveBeenCalledWith({
-      content: "That name is too long. Keep it under 100 characters, will you?",
-      ephemeral: true,
-    });
+    const replyCall = (mockInteraction.reply as any).mock.calls[0][0];
+    expect(replyCall.ephemeral).toBe(true);
+    expect(responses.registration.validation.nameTooLong.responses).toContain(replyCall.content);
   });
 
   it("should create new user for first-time registration", async () => {
@@ -104,8 +103,13 @@ describe("handleRegisterModal", () => {
     const embed = replyCall.embeds[0];
     // EmbedBuilder instances have a .data property with the serialized data
     const embedData = embed.data || embed.toJSON();
-    expect(embedData.description).toContain("Welcome");
+    expect(embedData.title).toBe(responses.registration.success.firstTime.title);
     expect(embedData.description).toContain(inGameName);
+    // Check that description matches one of the possible responses
+    const possibleDescriptions = responses.registration.success.firstTime.description.responses.map(
+      (r) => r.replace("{inGameName}", inGameName)
+    );
+    expect(possibleDescriptions).toContain(embedData.description);
   });
 
   it("should update existing user for re-registration", async () => {
@@ -136,8 +140,13 @@ describe("handleRegisterModal", () => {
     const embed = replyCall.embeds[0];
     // EmbedBuilder instances have a .data property with the serialized data
     const embedData = embed.data || embed.toJSON();
-    expect(embedData.description).toContain("Changed your mind");
+    expect(embedData.title).toBe(responses.registration.success.reRegistration.title);
     expect(embedData.description).toContain(inGameName);
+    // Check that description matches one of the possible responses
+    const possibleDescriptions = responses.registration.success.reRegistration.description.responses.map(
+      (r) => r.replace("{inGameName}", inGameName)
+    );
+    expect(possibleDescriptions).toContain(embedData.description);
   });
 
   it("should handle database errors gracefully", async () => {
@@ -147,10 +156,9 @@ describe("handleRegisterModal", () => {
 
     await handleRegisterModal(mockInteraction as ModalSubmitInteraction);
 
-    expect(mockInteraction.reply).toHaveBeenCalledWith({
-      content: "Something went wrong. Try again later.",
-      ephemeral: true,
-    });
+    const replyCall = (mockInteraction.reply as any).mock.calls[0][0];
+    expect(replyCall.ephemeral).toBe(true);
+    expect(responses.registration.genericError.responses).toContain(replyCall.content);
   });
 
   it("should reject users without member or admin role", async () => {
@@ -160,10 +168,9 @@ describe("handleRegisterModal", () => {
 
     await handleRegisterModal(mockInteraction as ModalSubmitInteraction);
 
-    expect(mockInteraction.reply).toHaveBeenCalledWith({
-      content: "You don't have permission to use this command. You need the member or admin role.",
-      ephemeral: true,
-    });
+    const replyCall = (mockInteraction.reply as any).mock.calls[0][0];
+    expect(replyCall.ephemeral).toBe(true);
+    expect(responses.registration.permissionError.responses).toContain(replyCall.content);
     expect(prisma.user.upsert).not.toHaveBeenCalled();
   });
 
@@ -174,10 +181,9 @@ describe("handleRegisterModal", () => {
 
     await handleRegisterModal(mockInteraction as ModalSubmitInteraction);
 
-    expect(mockInteraction.reply).toHaveBeenCalledWith({
-      content: "This command can only be used in a server.",
-      ephemeral: true,
-    });
+    const replyCall = (mockInteraction.reply as any).mock.calls[0][0];
+    expect(replyCall.ephemeral).toBe(true);
+    expect(responses.registration.serverOnlyError.responses).toContain(replyCall.content);
     expect(prisma.user.upsert).not.toHaveBeenCalled();
   });
 });
