@@ -1,6 +1,10 @@
 # Build stage
 FROM node:22-alpine AS builder
 
+# install openssl
+RUN apk update && apk upgrade
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # Copy package files
@@ -22,6 +26,10 @@ RUN npm run db:generate
 
 # Production stage
 FROM node:22-alpine
+
+# install openssl
+RUN apk update && apk upgrade
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
