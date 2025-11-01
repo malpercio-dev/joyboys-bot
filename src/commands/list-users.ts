@@ -172,6 +172,9 @@ async function execute(interaction: ChatInputCommandInteraction) {
 const listUsers: Command = {
   data,
   execute,
+  metadata: {
+    permission: "admin",
+  },
 };
 
 export default listUsers;

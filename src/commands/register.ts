@@ -46,6 +46,9 @@ async function execute(interaction: ChatInputCommandInteraction) {
 const register: Command = {
   data,
   execute,
+  metadata: {
+    permission: "member",
+  },
 };
 
 export default register;

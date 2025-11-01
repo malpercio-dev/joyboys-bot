@@ -8,7 +8,7 @@ import { Command } from "./types/command.js";
 export class Bot {
   public client: Client;
   public commands: Collection<string, Command>;
-  private loadedCommands: Command[] = [];
+  public loadedCommands: Command[] = [];
 
   constructor() {
     this.client = new Client({
@@ -19,6 +19,7 @@ export class Bot {
       ],
     });
     this.commands = new Collection();
+    (this.client as any).bot = this;
   }
 
   async start() {

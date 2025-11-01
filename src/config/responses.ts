@@ -29,6 +29,11 @@ export interface Responses {
     commandExecution: ResponseSet;
     modalSubmission: ResponseSet;
   };
+  help: {
+    commandDescription: string;
+    title: string;
+    noCommands: ResponseSet;
+  };
   admin: {
     listUsers: {
       commandDescription: string;
@@ -131,6 +136,17 @@ export const responses: Responses = {
         "Something broke while processing that. Try again.",
         "Error processing submission. What a shock.",
         "That submission didn't work. Try once more.",
+      ],
+    },
+  },
+  help: {
+    commandDescription: "List all available commands and your access",
+    title: "Available Commands",
+    noCommands: {
+      responses: [
+        "No commands available. That's weird.",
+        "Zero commands. Something's not right.",
+        "Couldn't find any commands. Weird.",
       ],
     },
   },
